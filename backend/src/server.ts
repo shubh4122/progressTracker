@@ -1,8 +1,9 @@
 //; is optional here
-import express from "express";
-//const creates a VARIABLE whose val cant be changed. 
-//We basically use app var, to point to express(), so that we dont have to write expres().something agian and again
-const app = express();//this 'app' is our server. we call express here
+
+import app from "./app";//import the export from app.ts
+import env from "./util/validateENV";// path ./ means -> current dir/.....
+import mongoose from "mongoose";
+
 /*
     port - is just a connection point on a server
     Some numbers(port nums) are preoccupied. 
@@ -10,21 +11,28 @@ const app = express();//this 'app' is our server. we call express here
     ports in order to run concurrently.
     But some nums are conventionally used, like 5000, 8000 etc
 */
-const port = 5000;
+// const port = 5000; -- SEE BELOW
+//we dont want to give port by ourself, let it take from .env
+// const port = process.env.PORT; // --> Now that we have used ENVALID, do :
+const port = env.PORT;
+
 /*
-    Get request - HTTP req
-    (req, res) is a function with these 2 arguments
-    its kinda ANONYMOUS functions we have in android. also, a LAMBDA function type.
-
-    res.send("ffsdff") -> this is the ENDPOINT which we will call and get this string back
+    process.env.VAR - is how u access var from .env
+    connect returns a PROMISE(asynchronous operation)
+    .then() defines that what to do, when connect succesful
+    .catch defines what to do, if it fails
 */
-app.get("/", (req, res) => {
-    //When we run server and open localhost:port, we see this string there on WEBPAGE
-    res.send("Hello World!");
-});
+mongoose.connect(env.MONGO_CONNECTION_STRING)
+    .then(() => {
+        //Here we do, what we want to do, after connection was succesfull
+        console.log("Mongoose Connected");
 
-//Starting server
-app.listen(port, () => {
-    //This is just a CALLBACK, where we'll show the log message just to see server started successfully without crash
-    console.log(`Server running on port: ${port}`);
-})
+        //WE put it here, coz we want to start server only if, DB connection is SUCCESSFUL! o/w problems may occur without DB
+        //Starting server
+        app.listen(port, () => {
+            //This is just a CALLBACK, where we'll show the log message just to see server started successfully without crash
+            console.log(`Server running on port: ${port}`);
+        });
+    })
+    .catch(console.error);//we just reference it, so whatever error happens it automatically prints it
+
