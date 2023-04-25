@@ -1,42 +1,30 @@
 import "dotenv/config";//this is IMPORTANT to import to use .env vars
 import express, { NextFunction, Request, Response } from "express";
-import TodoModel from "./models/todoItem"
+import todoRoutes from "./routes/todo"
+import morgan from "morgan";
 
 //const creates a VARIABLE whose val cant be changed. 
 //We basically use app var, to point to express(), so that we dont have to write expres().something agian and again
 const app = express();//this 'app' is our server. we call express here
 
-/*
-    Get request - HTTP req
-    (req, res) is a function with these 2 arguments
-    its kinda ANONYMOUS functions we have in android. also, a LAMBDA function type.
+//Used for loggin request. More info - see its docs
+app.use(morgan("dev"));
 
-    res.send("ffsdff") -> this is the ENDPOINT which we will call and get this string back
-*/
-app.get("/", async (req, res, next) => {
-    //ERROR HANDLING!!! v imp
-    //DO this, so that if some error is cause, OUR SERVER doesnt crash because of that.!
-    try {
-        // throw Error("FUCKYOUUU") -- done to test error
+/** 
+ * Previously this place had the ENDPOINTS. but it was removed once we created routes and controllers
+ */
 
-        //When we run server and open localhost:port, we see this string there on WEBPAGE
-        //--------------------->res.send("Hello World!");
-        //We use this as ENDPOINT, that returns the TODOs I put in DB.! instead of showing
-        //Just hello world
+//Another middleware - tells what kind of data we want to input to our express server
+app.use(express.json());//we want json data as input using POST
 
-        //TodoModel.find().exec() returns a PROMISE, and hence use async await.
-        const todos = await TodoModel.find().exec();
 
-        //status code 200 is OKAY and we send the response in form of JSON.
-        res.status(200).json(todos);//turns our todos into json and responds
-    } catch (error) {
-        next(error);//this calls error middleware
-        //now in all endpoints catch block just call error and we are done!!
-    }
-});
+//Another middleware. the /api/todos endpoints adds to the existing endpoint(/). and now we get todos at "old/newEndpt"
+app.use("/api/todos", todoRoutes);
+
 
 // This is for when user enters an endpoint that doenst exist, like localhost:5000/xyz
 //this should be before our error handler, as we direct the error to the error handler
+//THESE ARE MIDDLEWARES
 app.use((req, res, next) => {
     next(Error("Endpoint NOT FOUND!!"));
 });
