@@ -33,4 +33,13 @@ router.get("/:todoId", TodoController.getTodo);
  */
 router.post("/", TodoController.createTodo);
 
+
+//Patch is used for UPDATE
+router.patch("/:todoId", TodoController.updateTodo);
+
+
+//Delete TODO
+router.delete("/:todoId", TodoController.deleteTodo);
+
+
 export default router;
