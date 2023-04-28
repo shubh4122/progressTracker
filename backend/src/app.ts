@@ -2,6 +2,7 @@ import "dotenv/config";//this is IMPORTANT to import to use .env vars
 import express, { NextFunction, Request, Response } from "express";
 import todoRoutes from "./routes/todo"
 import morgan from "morgan";
+import createHttpError, { isHttpError } from "http-errors";
 
 //const creates a VARIABLE whose val cant be changed. 
 //We basically use app var, to point to express(), so that we dont have to write expres().something agian and again
@@ -26,7 +27,9 @@ app.use("/api/todos", todoRoutes);
 //this should be before our error handler, as we direct the error to the error handler
 //THESE ARE MIDDLEWARES
 app.use((req, res, next) => {
-    next(Error("Endpoint NOT FOUND!!"));
+    // next(Error("Endpoint NOT FOUND!!"));
+    //USING http-errors package for better error handling
+    next(createHttpError(404, "Endpoint Not Found!"));
 });
 //coz it uses the same error hadndler so gives 500 response which is not right tho. must be 404. but we handle this later
 
@@ -43,11 +46,19 @@ app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
     //if error occurs, 1st log your error
     console.error(error);
     let errorMessage = "Some unknown error occured!"//else this msg shown
+    let statusCode = 500;//this is our fallback code, i.e. if nothing works it will be passed
     //if the error is/belongs to Error, display its error msg generated
-    if (error instanceof Error)
+            // if (error instanceof Error)
+            //     errorMessage = error.message;
+
+    //better error handling
+    //this function checks, if error is an instance of HTTP Error. created above using createHttpError
+    if(isHttpError(error)) {
+        statusCode = error.status;
         errorMessage = error.message;
+    }
 
     //return the error message as json
-    res.status(500).json({ error: errorMessage });
+    res.status(statusCode).json({ error: errorMessage });
 });
 export default app;
