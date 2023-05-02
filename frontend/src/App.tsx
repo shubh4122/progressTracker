@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { Button } from 'react-bootstrap';
 import { Todo } from './models/todo';
 
 function App() {
@@ -49,6 +47,8 @@ function App() {
         alert(error);
       }
     }
+
+
     //Now after writing above function, call it here
     loadTodos();
   }, []);
