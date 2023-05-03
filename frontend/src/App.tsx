@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import './App.css';
-import { Todo } from './models/todo';
+import Todo from './components/Todo';
+import { Todo as TodoModel } from './models/todo';
 
 function App() {
 
@@ -9,7 +9,7 @@ function App() {
   //[variable name whose val changed, function that is used to update the state]
   // const [clickCount, setClickCount] = useState(0);
 
-  const [todos, setTodos] = useState<Todo[]>([]);//as this is empty arr
+  const [todos, setTodos] = useState<TodoModel[]>([]);//as this is empty arr
   //we will need to specify type of todos, coz of TS. in <array of TODOS>
 
   /**
@@ -63,9 +63,29 @@ function App() {
 
 
   return (
-    <div className="App">
+    <div>
+      {/* EVERYTHING in this block is writtern inside {}!!! */}
+
       {/* stringify just converts JSON to string. Use for TESTING*/}
-      {JSON.stringify(todos)}
+      {/* {JSON.stringify(todos)} */}
+
+      {/* Map allows us to take some data and Convert it to something different. This is what we
+      want to do. Take our Raw Todos, and Turn them into Components.
+      todos.map has an arrow function which takes an argument, which is EACH TODO object in our todos array*/}
+      {
+        todos.map((todo) => {
+          return (
+            // Using Todo Component, that we created.
+            //below todo is one we pass to OUR component in the component/Todo.tsx and the {todo} is the one
+            //we pass in above arrow function
+            //<Todo_component todoProps = {eachTodo}/> - basically we pass each todo, to componentTodo
+            //we need to add this key o/w there will be warning in Console later.
+            //Key is necessary for React to know, when it has to redraw this TODO
+            <Todo todo={todo} key={todo._id} />
+          )
+        })
+      }
+
     </div>
   );
 }
